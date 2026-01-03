@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant_app/models/cart_model.dart';
 import 'package:restaurant_app/screens/root_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(create:(_) => CartModel(),
+    child:
+    const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
