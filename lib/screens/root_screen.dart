@@ -30,6 +30,15 @@ class _RootScreenState extends State <RootScreen>{
       onTap: (index){
         setState(() =>_currentIndex=index);
       },
+       
+  backgroundColor: Colors.orange, // narandžasta pozadina
+
+  selectedItemColor: Colors.white, //  aktivna ikonica
+  unselectedItemColor: Colors.white70, // ali providnija
+
+  elevation: 0,
+  type: BottomNavigationBarType.fixed,
+
       items: const[
         BottomNavigationBarItem(icon: Icon(Icons.home),label:"Home"),
         BottomNavigationBarItem(icon: Icon(Icons.search),label: "Search"),
