@@ -11,8 +11,18 @@ class HomeScreen extends StatelessWidget{
     return Scaffold(
       
       body: SingleChildScrollView(
-        child: Column(children: [
-          BannerWidget(),
+        child: Column(children: [ 
+          //banner
+          ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Image.asset(
+        "assets/images/header_img.png",
+        height: 160,
+        width: double.infinity,
+        fit: BoxFit.cover,
+      ),
+    ),
+
           const SizedBox(height: 16),
 
           GridView.builder(
