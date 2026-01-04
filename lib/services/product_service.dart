@@ -10,6 +10,7 @@ class ProductService {
         price:14.0,
         imageUrl: "https://images.unsplash.com/photo-1603133872878-684f9f7e4f1d",
         rating: 0,
+        category: "Noodles"
       ),
       Product(
         id:2,
@@ -18,6 +19,7 @@ class ProductService {
         price:12.0,
         imageUrl:"http://images.unsplash.com/photo-1603133872878-684f9f7e4f1d",
         rating: 0,
+        category: "Noodles"
       ),
     ];
   }
