@@ -23,7 +23,7 @@ class ProductDetailsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.network(
+              Image.asset(
                 product.imageUrl,
                 height: 220,
                 width: double.infinity,

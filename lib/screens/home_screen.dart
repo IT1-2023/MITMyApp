@@ -57,20 +57,20 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             //banner
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Stack(
+            
+               Stack(
+                
                 children: [
                   Image.asset(
                     "assets/images/header_img.png",
-                    height: 160,
+                    height: 180,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),
 
                   // tamni overlay
                   Container(
-                    height: 160,
+                    height: 180,
                     width: double.infinity,
                     color: Colors.black.withOpacity(0.4),
                   ),
@@ -100,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-            ),
+            
 
             const SizedBox(height: 16),
 
