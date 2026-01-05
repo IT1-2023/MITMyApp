@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:restaurant_app/models/cart_model.dart';
 import 'package:restaurant_app/screens/home_screen.dart';
 import 'package:restaurant_app/screens/cart_screen.dart';
-import 'package:restaurant_app/screens/profile_screen.dart';
+import 'package:restaurant_app/screens/profile_wrapper.dart';
 import 'package:restaurant_app/screens/search_screen.dart';
 
 class RootScreen extends StatefulWidget{
@@ -20,7 +20,9 @@ class _RootScreenState extends State <RootScreen>{
     HomeScreen(),
     SearchScreen(),
     CartScreen(),
-    ProfileScreen(),
+  const ProfileWrapper(),
+  
+  
   ];
 
   @override
