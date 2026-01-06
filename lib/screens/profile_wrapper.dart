@@ -14,16 +14,81 @@ class _ProfileWrapperState extends State<ProfileWrapper> {
   @override
   Widget build(BuildContext context) {
     if (!AuthService.isLoggedIn()) {
-      return Center(
-        child: ElevatedButton(
-          onPressed: () => showAuthModal(
-            context,
-            () => setState(() {}),
+      return Scaffold(
+        backgroundColor: Colors.grey.shade100,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // avatar icon
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.person_outline,
+                  size: 64,
+                  color: Colors.orange,
+                ),
+              ),
+              const SizedBox(height: 24),
+              //title 
+               const Text(
+                "Welcome!",
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              //subtitle 
+              const Text(
+                "Login or create an account to manage\norders and your profile.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
+              //login/register
+                SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => showAuthModal(context, (){
+                    setState(() {}
+                    );
+                  }),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Login / Register",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          child: const Text("Login / Register"),
         ),
-      );
-    }
+      ),
+    );
+  }
 
     return ProfileScreen(
       onLogout: () {

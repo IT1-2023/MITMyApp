@@ -159,7 +159,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: const TextStyle(color: Colors.grey),
                 ),
               ),
-            const SizedBox(height: 16),
+
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Divider(color: Colors.orange.shade200, thickness: 1,),),
+
+            const SizedBox(height: 8),
 
             GridView.builder(
               shrinkWrap: true,

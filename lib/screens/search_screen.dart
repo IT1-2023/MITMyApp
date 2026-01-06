@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_app/models/product.dart';
 import 'package:restaurant_app/services/product_service.dart';
-import 'package:restaurant_app/widgets/product_card.dart';
+import 'package:restaurant_app/widgets/search_product_card.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -56,6 +56,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   hintText: "Search for dishes...",
                   filled: true,
                   fillColor: Colors.white,
+                   contentPadding: const EdgeInsets.symmetric(vertical: 14),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -79,7 +80,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         itemBuilder: (context, index) {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
-                            child: ProductCard(
+                            child: SearchProductCard(
                               product: filteredProducts[index],
                             ),
                           );
