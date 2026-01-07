@@ -1,8 +1,8 @@
 import 'package:restaurant_app/models/product.dart';
 
 class ProductService {
-  static List <Product> getProducts(){
-    return[
+  static final List <Product> _products=
+    [
       Product(
         id:1,
         name:"Greek Salad",
@@ -329,7 +329,25 @@ Product(
         rating: 4.3,
         category: "Noodles",
       ),
-
     ];
+  static List<Product> getProducts() {
+  return List.unmodifiable(_products);
+}
+   static void updateProduct(Product updatedProduct) {
+    final index =
+        _products.indexWhere((p) => p.id == updatedProduct.id);
+
+    if (index != -1) {
+      _products[index] = updatedProduct;
+    }
   }
+  static void deleteProduct(Product product) {
+  _products.removeWhere((p) => p.id == product.id);
+}
+
+static void addProduct(Product product) {
+  _products.add(product);
+}
+
+ 
 }

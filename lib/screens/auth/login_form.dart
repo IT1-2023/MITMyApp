@@ -37,7 +37,7 @@ class _LoginFormState extends State<LoginForm> {
                 emailCtrl.text,
                 passCtrl.text,
               );
-              widget.onSuccess(); // ✅ refresh
+              widget.onSuccess(); // refresh
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),

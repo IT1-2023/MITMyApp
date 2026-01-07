@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_app/models/app_user.dart';
 import 'package:restaurant_app/services/auth_service.dart';
+import 'package:restaurant_app/screens/admin/admin_add_product_screen.dart';
+import 'package:restaurant_app/screens/admin/admin_products_screen.dart';
 
-class ProfileScreen extends StatelessWidget{
-  
-   final VoidCallback onLogout;
+class ProfileScreen extends StatelessWidget {
+  final VoidCallback onLogout;
 
-   const ProfileScreen({super.key,required this.onLogout});
-
+  const ProfileScreen({super.key, required this.onLogout});
 
   @override
   Widget build(BuildContext context) {
-     final user = AuthService.currentUser!;
-    return  Scaffold(
-     backgroundColor: Colors.grey.shade100,
+    final user = AuthService.currentUser!;
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -27,24 +27,23 @@ class ProfileScreen extends StatelessWidget{
               const SizedBox(height: 16),
 
               //user card
-              Container (
-                 width: double.infinity,
+              Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
-              ),
-              child: Row(
-                children: [
-                  const CircleAvatar(
+                ),
+                child: Row(
+                  children: [
+                    const CircleAvatar(
                       radius: 26,
                       backgroundColor: Colors.orange,
                       child: Icon(Icons.person, color: Colors.white),
                     ),
-                     const SizedBox(width: 12),
+                    const SizedBox(width: 12),
 
-
-               Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -68,9 +67,9 @@ class ProfileScreen extends StatelessWidget{
                     ),
                   ],
                 ),
-              ),  
-                const SizedBox(height: 16),
-                // OPTIONS
+              ),
+              const SizedBox(height: 16),
+              // OPTIONS
               Expanded(
                 child: ListView(
                   children: [
@@ -80,8 +79,22 @@ class ProfileScreen extends StatelessWidget{
                     ],
 
                     if (user.isAdmin) ...[
-                      _tile(Icons.add_box, "Add Product", () {}),
-                      _tile(Icons.edit, "Edit / Delete Products", () {}),
+                      _tile(Icons.add_box, "Add Product", () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AdminAddProductScreen(),
+                          ),
+                        );
+                      }),
+                      _tile(Icons.edit, "Edit / Delete Products", () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AdminProductsScreen(),
+                          ),
+                        );
+                      }),
                       _tile(Icons.local_shipping, "Manage Orders", () {}),
                     ],
 
@@ -100,9 +113,13 @@ class ProfileScreen extends StatelessWidget{
       ),
     );
   }
-              
-    Widget _tile(IconData icon, String title, VoidCallback onTap,
-      {bool isRed = false}) {
+
+  Widget _tile(
+    IconData icon,
+    String title,
+    VoidCallback onTap, {
+    bool isRed = false,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
