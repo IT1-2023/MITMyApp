@@ -24,6 +24,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String? selectedCategory;
+  String? priceSort; // rastuce ili opadajuce
   late List<Product> allProducts;
   late List<Product> filteredProducts;
 
@@ -31,15 +32,16 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     allProducts = ProductService.getProducts();
-    filteredProducts = allProducts;
+    filteredProducts = List.from(allProducts);
   }
 
   void filterByCategory(String category) {
     setState(() {
+      priceSort = null;
       if (selectedCategory == category) {
         // kliknuta ista kategorija → ukloni filter
         selectedCategory = null;
-        filteredProducts = allProducts;
+        filteredProducts = List.from(allProducts);;
       } else {
         // nova kategorija → filtriraj
         selectedCategory = category;
@@ -49,6 +51,18 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
   }
+  void sortByPrice(String? value) {
+  setState(() {
+    priceSort = value;
+
+    if (priceSort == "asc") {
+      filteredProducts.sort((a, b) => a.price.compareTo(b.price));
+    } else if (priceSort == "desc") {
+      filteredProducts.sort((a, b) => b.price.compareTo(a.price));
+    }
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -151,19 +165,44 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
             ),
-            if (selectedCategory != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  "Filtered by: $selectedCategory",
-                  style: const TextStyle(color: Colors.grey),
-                ),
-              ),
+         const SizedBox(height: 6),
+
 
               Padding(padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Divider(color: Colors.orange.shade200, thickness: 1,),),
 
             const SizedBox(height: 8),
+            Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 16),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      if (selectedCategory != null)
+        Text(
+          "Filtered by: $selectedCategory",
+          style: const TextStyle(color: Colors.grey),
+        ),
+
+      DropdownButton<String>(
+        value: priceSort,
+        hint: const Text("Sort by price"),
+        underline: const SizedBox(),
+        items: const [
+          DropdownMenuItem(
+            value: "asc",
+            child: Text("Price: Low → High"),
+          ),
+          DropdownMenuItem(
+            value: "desc",
+            child: Text("Price: High → Low"),
+          ),
+        ],
+        onChanged: sortByPrice,
+      ),
+    ],
+  ),
+),
+
 
             GridView.builder(
               shrinkWrap: true,
