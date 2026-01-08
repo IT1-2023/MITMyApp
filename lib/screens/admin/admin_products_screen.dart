@@ -154,7 +154,9 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {
               Navigator.pop(context);
+               WidgetsBinding.instance.addPostFrameCallback((_) {
               _deleteProduct(product);
+            });
             },
             child: const Text("Delete"),
           ),

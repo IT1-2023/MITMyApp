@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:restaurant_app/models/app_user.dart';
+import 'package:restaurant_app/screens/admin/admin_orders_screen.dart';
 import 'package:restaurant_app/services/auth_service.dart';
 import 'package:restaurant_app/screens/admin/admin_add_product_screen.dart';
 import 'package:restaurant_app/screens/admin/admin_products_screen.dart';
@@ -95,7 +95,14 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         );
                       }),
-                      _tile(Icons.local_shipping, "Manage Orders", () {}),
+                      _tile(Icons.local_shipping, "Manage Orders", () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AdminOrdersScreen(),
+                          ),
+                        );
+                      }),
                     ],
 
                     const SizedBox(height: 8),
