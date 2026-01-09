@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_app/screens/admin/admin_orders_screen.dart';
+import 'package:restaurant_app/screens/my_address_screen.dart';
+import 'package:restaurant_app/screens/my_orders_screen.dart';
 import 'package:restaurant_app/services/auth_service.dart';
 import 'package:restaurant_app/screens/admin/admin_add_product_screen.dart';
 import 'package:restaurant_app/screens/admin/admin_products_screen.dart';
@@ -74,8 +76,22 @@ class ProfileScreen extends StatelessWidget {
                 child: ListView(
                   children: [
                     if (!user.isAdmin) ...[
-                      _tile(Icons.receipt_long, "My Orders", () {}),
-                      _tile(Icons.location_on, "My Address", () {}),
+                      _tile(Icons.receipt_long, "My Orders", () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const MyOrdersScreen(),
+                          ),
+                        );
+                      }),
+                      _tile(Icons.location_on, "My Address", () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const MyAddressScreen(),
+                          ),
+                        );
+                      }),
                     ],
 
                     if (user.isAdmin) ...[

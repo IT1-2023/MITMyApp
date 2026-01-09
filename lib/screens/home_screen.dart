@@ -119,52 +119,56 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 16),
 
             //HORIZONTALNI MENI
-            SizedBox(
-              height: 110,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  final category = categories[index];
-                  final isSelected = category["name"] == selectedCategory;
+ SizedBox(
+  height: 110,
+  child: ListView.builder(
+    scrollDirection: Axis.horizontal,
+    physics: const BouncingScrollPhysics(),
+    padding: const EdgeInsets.symmetric(horizontal: 12),
+    itemCount: categories.length,
+    itemBuilder: (context, index) {
+      final category = categories[index];
+      final isSelected = category["name"] == selectedCategory;
 
-                  return GestureDetector(
-                    onTap: () => filterByCategory(category["name"]!),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Column(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isSelected
-                                    ? Colors.orange
-                                    : Colors.transparent,
-                                width: 2,
-                              ),
-                            ),
-                            child: CircleAvatar(
-                              radius: 32,
-                              backgroundImage: AssetImage(category["image"]!),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            category["name"]!,
-                            style: TextStyle(
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+      return GestureDetector(
+        onTap: () => filterByCategory(category["name"]!),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isSelected
+                        ? Colors.orange
+                        : Colors.transparent,
+                    width: 2,
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: 28,
+                  backgroundImage:
+                      AssetImage(category["image"]!),
+                ),
               ),
-            ),
+              const SizedBox(height: 6),
+              Text(
+                category["name"]!,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight:
+                      isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  ),
+),
+
          const SizedBox(height: 6),
 
 
