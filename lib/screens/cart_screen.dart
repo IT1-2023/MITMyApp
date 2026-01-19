@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant_app/models/cart_model.dart';
+import 'package:restaurant_app/services/order_service.dart';
 
 class CartScreen extends StatelessWidget {
-  const CartScreen({super.key});
-
+  CartScreen({super.key});
+  final TextEditingController promoCtrl = TextEditingController();
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartModel>();
@@ -93,8 +94,7 @@ class CartScreen extends StatelessWidget {
                                       ),
                                       IconButton(
                                         icon: const Icon(Icons.add),
-                                        onPressed: () =>
-                                            cart.increaseQuantity(item.product),
+                                        onPressed: () => cart.add(item.product),
                                       ),
                                     ],
                                   ),
@@ -125,8 +125,8 @@ class CartScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
 
-                    _priceRow("Subtotal", cart.totalPrice),
-                    _priceRow("Delivery Fee", 0),
+                    _priceRow("Subtotal", cart.subtotal),
+                    _priceRow("Discount", -cart.discountAmount),
                     const Divider(),
                     _priceRow("Total", cart.totalPrice, isBold: true),
 
@@ -137,6 +137,7 @@ class CartScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: TextField(
+                            controller: promoCtrl,
                             decoration: InputDecoration(
                               hintText: "Promo code",
                               filled: true,
@@ -150,7 +151,24 @@ class CartScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            final success = cart.applyPromoCode(
+                              promoCtrl.text.trim(),
+                            );
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  success
+                                      ? "Promo code applied!"
+                                      : "Invalid promo code",
+                                ),
+                                backgroundColor: success
+                                    ? Colors.green
+                                    : Colors.red,
+                              ),
+                            );
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black,
                           ),
@@ -165,7 +183,21 @@ class CartScreen extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          OrderService.createOrder(
+                            items: List.from(cart.items),
+                            totalPrice: cart.totalPrice,
+                          );
+
+                          cart.clear();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Order placed successfully!"),
+                            ),
+                          );
+                        },
+
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
                           padding: const EdgeInsets.symmetric(vertical: 14),

@@ -1,64 +1,38 @@
 import '../models/order.dart';
-import '../models/product.dart';
+import '../models/cart_item.dart';
+import '../services/auth_service.dart';
 
 class OrderService {
-  static final List<Order> _orders = [
-    Order(
-      id: 1,
-      customerName: "John Doe",
-      products: [
-        Product(
-          id: 1,
-          name: "Greek Salad",
-          description: "",
-          price: 12,
-          imageUrl: "",
-          rating: 4.5,
-          category: "Salad",
-        ),
-      ],
-      totalPrice: 12,
-      status: "Pending",
-      date: DateTime.now(),
-    ),
+  static final List<Order> _orders = [];
 
-    Order(
-      id: 2,
-      customerName: "Anna Smith",
-      products: [
-        Product(
-          id: 2,
-          name: "Veg Rolls",
-          description: "",
-          price: 15,
-          imageUrl: "",
-          rating: 4.2,
-          category: "Rolls",
-        ),
-        Product(
-          id: 3,
-          name: "Ice Cream",
-          description: "",
-          price: 10,
-          imageUrl: "",
-          rating: 4.8,
-          category: "Desserts",
-        ),
-      ],
-      totalPrice: 25,
-      status: "Approved",
-      date: DateTime.now(),
-    ),
-  ];
+  static List<Order> getOrders() => _orders;
 
-  static List<Order> getOrders() {
-    return _orders;
+  static List<Order> getOrdersForUser(String userId) {
+    return _orders.where((o) => o.userId == userId).toList();
   }
 
-  static void updateStatus(int id, String newStatus) {
-    final index = _orders.indexWhere((o) => o.id == id);
-    if (index != -1) {
-      _orders[index].status = newStatus;
-    }
+  static void createOrder({
+    required List<CartItem> items,
+    required double totalPrice,
+  }) {
+    final user = AuthService.currentUser;
+    if (user == null) return;
+
+    _orders.add(
+      Order(
+        id: _orders.length + 1,
+        userId: user.id,
+        customerName: user.name,
+        items: List.from(items), 
+        totalPrice: totalPrice,
+        status: "Pending",
+        date: DateTime.now(),
+      ),
+    );
+  }
+
+  static void updateStatus(int orderId, String status) {
+    final order = _orders.firstWhere((o) => o.id == orderId);
+    order.status = status;
   }
 }

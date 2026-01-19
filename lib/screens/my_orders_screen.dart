@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant_app/services/auth_service.dart';
 import '../../models/order.dart';
 import '../../services/order_service.dart';
 
@@ -22,9 +23,11 @@ class MyOrdersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 🔴 MOCK – kasnije će biti po userId
-    final List<Order> myOrders =
-        OrderService.getOrders().where((o) => o.customerName == "John Doe").toList();
+    final user = AuthService.currentUser;
+
+    final List<Order> myOrders = user == null
+        ? []
+        : OrderService.getOrders().where((o) => o.userId == user.id).toList();
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -67,8 +70,9 @@ class MyOrdersScreen extends StatelessWidget {
                           ),
                           Chip(
                             label: Text(order.status),
-                            backgroundColor:
-                                _statusColor(order.status).withOpacity(0.15),
+                            backgroundColor: _statusColor(
+                              order.status,
+                            ).withOpacity(0.15),
                             labelStyle: TextStyle(
                               color: _statusColor(order.status),
                             ),
@@ -76,7 +80,19 @@ class MyOrdersScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text("Items: ${order.products.length}"),
+                      Text("Items: ${order.items.length}"),
+                      const SizedBox(height: 6),
+
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: order.items.map((item) {
+                          return Text(
+                            "• ${item.product.name} × ${item.quantity}",
+                            style: const TextStyle(fontSize: 13),
+                          );
+                        }).toList(),
+                      ),
+
                       Text(
                         "Total: \$${order.totalPrice}",
                         style: const TextStyle(

@@ -25,9 +25,9 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
       orders = OrderService.getOrders(); // refresh
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Order #${order.id} → $status")),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Order #${order.id} → $status")));
   }
 
   Color _statusColor(String status) {
@@ -126,9 +126,9 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                                 ),
                                 Chip(
                                   label: Text(order.status),
-                                  backgroundColor:
-                                      _statusColor(order.status)
-                                          .withOpacity(0.15),
+                                  backgroundColor: _statusColor(
+                                    order.status,
+                                  ).withOpacity(0.15),
                                   labelStyle: TextStyle(
                                     color: _statusColor(order.status),
                                   ),
@@ -139,7 +139,19 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                             const SizedBox(height: 8),
 
                             Text("Customer: ${order.customerName}"),
-                            Text("Items: ${order.products.length}"),
+                            Text("Items: ${order.items.length}"),
+                            const SizedBox(height: 6),
+
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: order.items.map((item) {
+                                return Text(
+                                  "• ${item.product.name} × ${item.quantity}",
+                                  style: const TextStyle(fontSize: 13),
+                                );
+                              }).toList(),
+                            ),
+
                             Text(
                               "Total: \$${order.totalPrice}",
                               style: const TextStyle(
@@ -158,8 +170,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                                     child: _actionBtn(
                                       "Approve",
                                       Colors.green,
-                                      () =>
-                                          _changeStatus(order, "Approved"),
+                                      () => _changeStatus(order, "Approved"),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -167,8 +178,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                                     child: _actionBtn(
                                       "Cancel",
                                       Colors.red,
-                                      () =>
-                                          _changeStatus(order, "Cancelled"),
+                                      () => _changeStatus(order, "Cancelled"),
                                     ),
                                   ),
                                 ],
@@ -178,8 +188,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                               _actionBtn(
                                 "Mark as Delivered",
                                 Colors.blue,
-                                () =>
-                                    _changeStatus(order, "Delivered"),
+                                () => _changeStatus(order, "Delivered"),
                               ),
                           ],
                         ),
