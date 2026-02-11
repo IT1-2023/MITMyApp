@@ -12,4 +12,24 @@ class UserAddress {
     required this.city,
     required this.zip,
   });
+    factory UserAddress.fromJson(Map<String, dynamic> json) {
+    return UserAddress(
+      fullName: json["fullName"] ?? "",
+      phone: json["phone"] ?? "",
+      street: json["street"] ?? "",
+      city: json["city"] ?? "",
+      zip: json["zip"] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "fullName": fullName,
+      "phone": phone,
+      "street": street,
+      "city": city,
+      "zip": zip,
+    };
+  }
+
 }

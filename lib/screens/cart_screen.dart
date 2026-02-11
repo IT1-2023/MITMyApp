@@ -1,14 +1,32 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant_app/models/cart_model.dart';
+import 'package:restaurant_app/services/auth_service.dart';
 import 'package:restaurant_app/services/order_service.dart';
 
 class CartScreen extends StatelessWidget {
   CartScreen({super.key});
+
   final TextEditingController promoCtrl = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartModel>();
+    final isAdmin = AuthService.isAdmin();
+
+    if (isAdmin) {
+      return Scaffold(
+        backgroundColor: Colors.grey.shade100,
+        body: const SafeArea(
+          child: Center(
+            child: Text(
+              "Admin accounts cannot place orders.",
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -25,7 +43,6 @@ class CartScreen extends StatelessWidget {
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // HEADER
                     const Text(
                       "Items",
                       style: TextStyle(
@@ -44,6 +61,7 @@ class CartScreen extends StatelessWidget {
                           ),
                         ),
                         Expanded(
+                          flex: 2,
                           child: Text(
                             "Quantity",
                             textAlign: TextAlign.center,
@@ -51,6 +69,7 @@ class CartScreen extends StatelessWidget {
                           ),
                         ),
                         Expanded(
+                          flex: 1,
                           child: Text(
                             "Price",
                             textAlign: TextAlign.end,
@@ -60,8 +79,6 @@ class CartScreen extends StatelessWidget {
                       ],
                     ),
                     const Divider(),
-
-                    // CART ITEMS
                     Expanded(
                       child: ListView.separated(
                         itemCount: cart.items.length,
@@ -75,32 +92,51 @@ class CartScreen extends StatelessWidget {
                               children: [
                                 Expanded(
                                   flex: 3,
-                                  child: Text(item.product.name),
+                                  child: Text(
+                                    item.product.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                                 Expanded(
+                                  flex: 2,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       IconButton(
+                                        constraints: const BoxConstraints(
+                                          minWidth: 28,
+                                          minHeight: 28,
+                                        ),
+                                        padding: EdgeInsets.zero,
+                                        visualDensity: VisualDensity.compact,
                                         icon: const Icon(Icons.remove),
                                         onPressed: () =>
                                             cart.decreaseQuantity(item.product),
                                       ),
+                                      const SizedBox(width: 4),
                                       Text(
                                         item.quantity.toString(),
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
+                                      const SizedBox(width: 4),
                                       IconButton(
+                                        constraints: const BoxConstraints(
+                                          minWidth: 28,
+                                          minHeight: 28,
+                                        ),
+                                        padding: EdgeInsets.zero,
+                                        visualDensity: VisualDensity.compact,
                                         icon: const Icon(Icons.add),
                                         onPressed: () => cart.add(item.product),
                                       ),
                                     ],
                                   ),
                                 ),
-
                                 Expanded(
+                                  flex: 1,
                                   child: Text(
                                     "\$${(item.product.price * item.quantity).toStringAsFixed(2)}",
                                     textAlign: TextAlign.end,
@@ -112,10 +148,7 @@ class CartScreen extends StatelessWidget {
                         },
                       ),
                     ),
-
                     const SizedBox(height: 24),
-
-                    // CART TOTALS
                     const Text(
                       "Cart Totals",
                       style: TextStyle(
@@ -124,15 +157,11 @@ class CartScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-
                     _priceRow("Subtotal", cart.subtotal),
                     _priceRow("Discount", -cart.discountAmount),
                     const Divider(),
                     _priceRow("Total", cart.totalPrice, isBold: true),
-
                     const SizedBox(height: 16),
-
-                    // PROMO CODE
                     Row(
                       children: [
                         Expanded(
@@ -163,9 +192,8 @@ class CartScreen extends StatelessWidget {
                                       ? "Promo code applied!"
                                       : "Invalid promo code",
                                 ),
-                                backgroundColor: success
-                                    ? Colors.green
-                                    : Colors.red,
+                                backgroundColor:
+                                    success ? Colors.green : Colors.red,
                               ),
                             );
                           },
@@ -176,28 +204,34 @@ class CartScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 16),
-
-                    // CHECKOUT BUTTON
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          OrderService.createOrder(
-                            items: List.from(cart.items),
-                            totalPrice: cart.totalPrice,
-                          );
+                        onPressed: () async {
+                          try {
+                            await OrderService.createOrder(
+                              items: List.from(cart.items),
+                              totalPrice: cart.totalPrice,
+                            );
 
-                          cart.clear();
+                            cart.clear();
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Order placed successfully!"),
-                            ),
-                          );
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Order placed successfully!"),
+                              ),
+                            );
+                          } catch (_) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Failed to place order"),
+                              ),
+                            );
+                          }
                         },
-
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
                           padding: const EdgeInsets.symmetric(vertical: 14),

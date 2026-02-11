@@ -3,6 +3,7 @@ import 'package:restaurant_app/models/cart_item.dart';
 import 'package:restaurant_app/models/product.dart';
 
 class CartModel extends ChangeNotifier {
+  //koristi STAVKE U KORPI 
   final List<CartItem> _items = [];
 
   double _discountPercent = 0; // 0, 0.10, 0.20

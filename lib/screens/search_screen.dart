@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_app/models/product.dart';
-import 'package:restaurant_app/services/product_service.dart';
+import 'package:restaurant_app/services/api_service.dart';
+
 import 'package:restaurant_app/widgets/search_product_card.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -11,29 +12,63 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  late List<Product> allProducts;
+  List<Product> allProducts=[];
   List<Product> filteredProducts = [];
+    bool isLoading = true;
+    String? error;
+    
+
 
   @override
   void initState() {
     super.initState();
-    allProducts = ProductService.getProducts();
-    filteredProducts = allProducts;
+  _loadProducts();
   }
+   Future<void> _loadProducts() async {
+    try {
+      final products = await ApiService.getProducts();
+    if (!mounted) return;
 
-  void _filterProducts(String query) {
+      setState(() {
+        allProducts = products;
+        filteredProducts = products;
+        isLoading = false;
+      });
+
+    } catch (e) {
+
+      if (!mounted) return;
+
+      setState(() {
+        error = "Failed to load products";
+        isLoading = false;
+      });
+    }
+  }
+ void _filterProducts(String query) {
+
+    final results = allProducts.where((product) {
+      return product.name.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
     setState(() {
-      filteredProducts = allProducts
-          .where(
-            (product) =>
-                product.name.toLowerCase().contains(query.toLowerCase()),
-          )
-          .toList();
+      filteredProducts = results;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+     if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+        if (error != null) {
+      return Scaffold(
+        body: Center(child: Text(error!)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SafeArea(

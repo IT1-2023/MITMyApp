@@ -21,6 +21,7 @@ class _ProfileWrapperState extends State<ProfileWrapper> {
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            
             children: [
               // avatar icon
               Container(

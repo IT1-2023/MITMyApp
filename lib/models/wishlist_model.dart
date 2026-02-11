@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_app/models/product.dart';
+import 'package:restaurant_app/services/wishlist_service.dart';
 
 class WishlistModel extends ChangeNotifier {
   final List<Product> _items = [];
@@ -10,20 +11,26 @@ class WishlistModel extends ChangeNotifier {
     return _items.any((p) => p.id == product.id);
   }
 
-  void toggle(Product product) {
-    final index = _items.indexWhere((p) => p.id == product.id);
-
-    if (index >= 0) {
-      _items.removeAt(index);
-    } else {
-      _items.add(product);
-    }
-
+  Future<void> load() async {
+    _items
+      ..clear()
+      ..addAll(await WishlistService.getWishlist());
     notifyListeners();
   }
 
-  void remove(Product product) {
-    _items.removeWhere((p) => p.id == product.id);
+  Future<void> toggle(Product product) async {
+    if (product.id == null) return;
+    _items
+      ..clear()
+      ..addAll(await WishlistService.toggleWishlist(product.id!));
+    notifyListeners();
+  }
+
+  Future<void> remove(Product product) async {
+    if (product.id == null) return;
+    _items
+      ..clear()
+      ..addAll(await WishlistService.removeFromWishlist(product.id!));
     notifyListeners();
   }
 
@@ -31,4 +38,5 @@ class WishlistModel extends ChangeNotifier {
     _items.clear();
     notifyListeners();
   }
+
 }

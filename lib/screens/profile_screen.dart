@@ -1,11 +1,14 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:restaurant_app/models/cart_model.dart';
+import 'package:restaurant_app/models/wishlist_model.dart';
+import 'package:restaurant_app/screens/admin/admin_add_product_screen.dart';
 import 'package:restaurant_app/screens/admin/admin_orders_screen.dart';
+import 'package:restaurant_app/screens/admin/admin_products_screen.dart';
 import 'package:restaurant_app/screens/my_address_screen.dart';
 import 'package:restaurant_app/screens/my_orders_screen.dart';
 import 'package:restaurant_app/screens/my_wishlist_screen.dart';
 import 'package:restaurant_app/services/auth_service.dart';
-import 'package:restaurant_app/screens/admin/admin_add_product_screen.dart';
-import 'package:restaurant_app/screens/admin/admin_products_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   final VoidCallback onLogout;
@@ -28,8 +31,6 @@ class ProfileScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-
-              //user card
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -45,7 +46,6 @@ class ProfileScreen extends StatelessWidget {
                       child: Icon(Icons.person, color: Colors.white),
                     ),
                     const SizedBox(width: 12),
-
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -72,7 +72,6 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              // OPTIONS
               Expanded(
                 child: ListView(
                   children: [
@@ -102,7 +101,6 @@ class ProfileScreen extends StatelessWidget {
                         );
                       }),
                     ],
-
                     if (user.isAdmin) ...[
                       _tile(Icons.add_box, "Add Product", () {
                         Navigator.push(
@@ -129,11 +127,12 @@ class ProfileScreen extends StatelessWidget {
                         );
                       }),
                     ],
-
                     const SizedBox(height: 8),
-
-                    _tile(Icons.logout, "Logout", () {
-                      AuthService.logout();
+                    _tile(Icons.logout, "Logout", () async {
+                      await AuthService.logout();
+                      if (!context.mounted) return;
+                      context.read<WishlistModel>().clear();
+                      context.read<CartModel>().clear();
                       onLogout();
                     }, isRed: true),
                   ],

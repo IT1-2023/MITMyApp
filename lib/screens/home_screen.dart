@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_app/models/product.dart';
-import 'package:restaurant_app/services/product_service.dart';
+import 'package:restaurant_app/services/api_service.dart';
 import 'package:restaurant_app/widgets/footer_section.dart';
 import 'package:restaurant_app/widgets/product_card.dart';
 
@@ -23,196 +23,230 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
+  List<Product> allProducts = [];
+  List<Product> filteredProducts = [];
+
+  bool isLoading = true;
+  String? error;
+
   String? selectedCategory;
-  String? priceSort; // rastuce ili opadajuce
-  late List<Product> allProducts;
-  late List<Product> filteredProducts;
+  String? priceSort;
 
   @override
   void initState() {
     super.initState();
-    allProducts = ProductService.getProducts();
-    filteredProducts = List.from(allProducts);
+    loadProducts();
   }
 
+  // LOAD PRODUCTS 
+  Future<void> loadProducts() async {
+    try {
+      final products = await ApiService.getProducts();
+
+      if (!mounted) return;
+
+      setState(() {
+        allProducts = products;
+        filteredProducts = products;
+        isLoading = false;
+      });
+
+    } catch (e) {
+
+      if (!mounted) return;
+
+      setState(() {
+        error = "Failed to load products";
+        isLoading = false;
+      });
+    }
+  }
+
+  // FILTER
   void filterByCategory(String category) {
     setState(() {
       priceSort = null;
+
       if (selectedCategory == category) {
-        // kliknuta ista kategorija → ukloni filter
         selectedCategory = null;
-        filteredProducts = List.from(allProducts);;
+        filteredProducts = List.from(allProducts);
       } else {
-        // nova kategorija → filtriraj
         selectedCategory = category;
-        filteredProducts = allProducts
-            .where((p) => p.category == category)
-            .toList();
+        filteredProducts =
+            allProducts.where((p) => p.category == category).toList();
       }
     });
   }
+
+  //  SORT
   void sortByPrice(String? value) {
-  setState(() {
-    priceSort = value;
+    setState(() {
+      priceSort = value;
 
-    if (priceSort == "asc") {
-      filteredProducts.sort((a, b) => a.price.compareTo(b.price));
-    } else if (priceSort == "desc") {
-      filteredProducts.sort((a, b) => b.price.compareTo(a.price));
-    }
-  });
-}
-
+      if (value == "asc") {
+        filteredProducts.sort((a, b) => a.price.compareTo(b.price));
+      } else if (value == "desc") {
+        filteredProducts.sort((a, b) => b.price.compareTo(a.price));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+
+    // LOADING
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    //  ERROR
+    if (error != null) {
+      return Scaffold(
+        body: Center(child: Text(error!)),
+      );
+    }
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
-            //banner
-            
-               Stack(
-                
-                children: [
-                  Image.asset(
-                    "assets/images/header_img.png",
-                    height: 180,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
 
-                  // tamni overlay
-                  Container(
-                    height: 180,
-                    width: double.infinity,
-                    color: Colors.black.withOpacity(0.4),
-                  ),
-
-                  // tekst preko banera
-                  Positioned(
-                    left: 16,
-                    bottom: 20,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          "Delicious food",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
+            // BANNER
+            Stack(
+              children: [
+                Image.asset(
+                  "assets/images/header_img.png",
+                  height: 180,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+                Container(
+                  height: 180,
+                  color: Colors.black.withOpacity(0.4),
+                ),
+                const Positioned(
+                  left: 16,
+                  bottom: 20,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Delicious food",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          "Discover our menu",
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
-                        ),
-                      ],
-                    ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        "Discover our menu",
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            
+                ),
+              ],
+            ),
 
             const SizedBox(height: 16),
 
-            //HORIZONTALNI MENI
- SizedBox(
-  height: 110,
-  child: ListView.builder(
-    scrollDirection: Axis.horizontal,
-    physics: const BouncingScrollPhysics(),
-    padding: const EdgeInsets.symmetric(horizontal: 12),
-    itemCount: categories.length,
-    itemBuilder: (context, index) {
-      final category = categories[index];
-      final isSelected = category["name"] == selectedCategory;
+            //  CATEGORY MENU
+            SizedBox(
+              height: 110,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                itemCount: categories.length,
+                itemBuilder: (context, index) {
 
-      return GestureDetector(
-        onTap: () => filterByCategory(category["name"]!),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected
-                        ? Colors.orange
-                        : Colors.transparent,
-                    width: 2,
-                  ),
-                ),
-                child: CircleAvatar(
-                  radius: 28,
-                  backgroundImage:
-                      AssetImage(category["image"]!),
-                ),
+                  final category = categories[index];
+                  final isSelected = category["name"] == selectedCategory;
+
+                  return GestureDetector(
+                    onTap: () => filterByCategory(category["name"]!),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isSelected
+                                    ? Colors.orange
+                                    : Colors.transparent,
+                                width: 2,
+                              ),
+                            ),
+                            child: CircleAvatar(
+                              radius: 28,
+                              backgroundImage:
+                                  AssetImage(category["image"]!),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            category["name"]!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-              const SizedBox(height: 6),
-              Text(
-                category["name"]!,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight:
-                      isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  ),
-),
-
-         const SizedBox(height: 6),
-
-
-              Padding(padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Divider(color: Colors.orange.shade200, thickness: 1,),),
+            ),
 
             const SizedBox(height: 8),
+
+            // SORT
             Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 16),
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      if (selectedCategory != null)
-        Text(
-          "Filtered by: $selectedCategory",
-          style: const TextStyle(color: Colors.grey),
-        ),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
 
-      DropdownButton<String>(
-        value: priceSort,
-        hint: const Text("Sort by price"),
-        underline: const SizedBox(),
-        items: const [
-          DropdownMenuItem(
-            value: "asc",
-            child: Text("Price: Low → High"),
-          ),
-          DropdownMenuItem(
-            value: "desc",
-            child: Text("Price: High → Low"),
-          ),
-        ],
-        onChanged: sortByPrice,
-      ),
-    ],
-  ),
-),
+                  if (selectedCategory != null)
+                    Text("Filtered by: $selectedCategory"),
 
+                  DropdownButton<String>(
+                    value: priceSort,
+                    hint: const Text("Sort by price"),
+                    underline: const SizedBox(),
+                    items: const [
+                      DropdownMenuItem(
+                        value: "asc",
+                        child: Text("Price: Low → High"),
+                      ),
+                      DropdownMenuItem(
+                        value: "desc",
+                        child: Text("Price: High → Low"),
+                      ),
+                    ],
+                    onChanged: sortByPrice,
+                  ),
+                ],
+              ),
+            ),
 
+            const SizedBox(height: 12),
+
+            // PRODUCTS GRID
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.all(12),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate:
+                  const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 childAspectRatio: 0.7,
                 crossAxisSpacing: 12,
@@ -223,6 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 return ProductCard(product: filteredProducts[index]);
               },
             ),
+
             const SizedBox(height: 30),
             const FooterSection(),
           ],

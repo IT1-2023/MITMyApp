@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:restaurant_app/models/cart_model.dart';
 import 'package:restaurant_app/models/wishlist_model.dart';
 import 'package:restaurant_app/screens/root_screen.dart';
-import 'package:provider/provider.dart';
 
-void main() {
-runApp(
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CartModel()),
@@ -16,18 +18,15 @@ runApp(
   );
 }
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-     debugShowCheckedModeBanner: false,
-     theme: ThemeData(useMaterial3: false),
-     home: RootScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(useMaterial3: false),
+      home: RootScreen(),
     );
   }
 }
-

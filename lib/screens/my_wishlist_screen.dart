@@ -3,8 +3,19 @@ import 'package:provider/provider.dart';
 import 'package:restaurant_app/models/wishlist_model.dart';
 import 'package:restaurant_app/widgets/product_card.dart';
 
-class MyWishlistScreen extends StatelessWidget {
+class MyWishlistScreen extends StatefulWidget {
   const MyWishlistScreen({super.key});
+
+  @override
+  State<MyWishlistScreen> createState() => _MyWishlistScreenState();
+}
+
+class _MyWishlistScreenState extends State<MyWishlistScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => context.read<WishlistModel>().load());
+  }
 
   @override
   Widget build(BuildContext context) {
