@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
 
-class RatingStars extends StatelessWidget{
+class RatingStars extends StatelessWidget {
   final double rating;
 
-  const RatingStars({required this.rating});
+  const RatingStars({super.key, required this.rating});
 
-  Widget build(BuildContext context){
+  @override
+  Widget build(BuildContext context) {
     return Row(
-      children: List.generate(5, (index){
+      children: List.generate(5, (index) {
+        final starValue = index + 1;
+        IconData icon;
+        if (rating >= starValue) {
+          icon = Icons.star;
+        } else if (rating >= starValue - 0.5) {
+          icon = Icons.star_half;
+        } else {
+          icon = Icons.star_border;
+        }
         return Icon(
-          Icons.star_border,
+          icon,
           size: 18,
           color: Colors.orange,
         );
-      }
-    ),
+      }),
     );
-    
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_app/models/product.dart';
-import 'package:restaurant_app/services/product_service.dart';
+import 'package:restaurant_app/services/api_service.dart';
 
 
 class EditProductScreen extends StatefulWidget {
@@ -17,6 +17,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
   late TextEditingController descCtrl;
   late TextEditingController priceCtrl;
   late String selectedCategory;
+
+    bool isSaving = false;
 
   final categories = [
     "Salad",
@@ -38,7 +40,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         TextEditingController(text: widget.product.price.toString());
     selectedCategory = widget.product.category;
   }
-
+  
   @override
   void dispose() {
     nameCtrl.dispose();
@@ -46,30 +48,55 @@ class _EditProductScreenState extends State<EditProductScreen> {
     priceCtrl.dispose();
     super.dispose();
   }
+   Future<void> _saveChanges() async {
 
-  void _saveChanges() {
+    
+    setState(() => isSaving = true);
+
+    
     if (nameCtrl.text.trim().isEmpty) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text("Product name is required")),
-  );
-  return;
-}
-  final updatedProduct = Product(
-    id: widget.product.id,
-    name: nameCtrl.text,
-    description: descCtrl.text,
-    price: double.tryParse(priceCtrl.text) ?? widget.product.price,
-    imageUrl: widget.product.imageUrl,
-    rating: widget.product.rating,
-    category: selectedCategory,
-  );
 
-  ProductService.updateProduct(updatedProduct);
-    ScaffoldMessenger.of(context).showSnackBar(
-  const SnackBar(content: Text("Product updated")),
-);
+      setState(() => isSaving = false);
 
-Navigator.pop(context, true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Product name is required")),
+      );
+      return;
+    }
+
+    final updated = widget.product.copyWith(
+      name: nameCtrl.text,
+      description: descCtrl.text,
+      price: double.tryParse(priceCtrl.text) ?? widget.product.price,
+      category: selectedCategory,
+    );
+
+    try {
+
+      
+      const token = "ADMIN_TOKEN";
+
+      await ApiService.updateProduct(updated);
+
+      if (!mounted) return;
+
+      Navigator.pop(context, true);
+
+    } catch (e) {
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Error updating product")),
+      );
+
+    } finally {
+
+      
+      if (mounted) {
+        setState(() => isSaving = false);
+      }
+    }
   }
 
   @override
@@ -122,7 +149,7 @@ Navigator.pop(context, true);
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _saveChanges,
+                onPressed: isSaving ? null : _saveChanges,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -130,9 +157,19 @@ Navigator.pop(context, true);
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  "SAVE CHANGES",
-                  style: TextStyle(fontSize: 16),
+              child: isSaving
+                ? const SizedBox(   
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        "SAVE CHANGES",
+                        style: TextStyle(fontSize: 16),
+                    
                 ),
               ),
             ),

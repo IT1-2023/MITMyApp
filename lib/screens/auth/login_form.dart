@@ -32,14 +32,26 @@ class _LoginFormState extends State<LoginForm> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () {
-              AuthService.login(
-                emailCtrl.text,
-                passCtrl.text,
-              );
-              widget.onSuccess(); // refresh
-              Navigator.pop(context);
-            },
+            onPressed: () async {
+  try {
+    await AuthService.login(
+      emailCtrl.text,
+      passCtrl.text,
+    );
+    widget.onSuccess();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    Navigator.pop(context);
+  } catch (e) {
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      const SnackBar(content: Text("Login failed")),
+    );
+  }
+},
+
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
             child: const Text("LOGIN"),
           ),

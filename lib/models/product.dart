@@ -1,5 +1,5 @@
 class Product {
-  final int id;
+  final String? id;
   final String name;
   final String description;
   final double price;
@@ -8,7 +8,7 @@ class Product {
   final String category;
 
   Product({
-    required this.id,
+    this.id,
     required this.name,
     required this.description,
     required this.price,
@@ -19,19 +19,18 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'],
+      id: json['_id'],
       name: json['name'],
       description: json['description'],
-      price: json['price'].toDouble(),
+      price: (json['price'] as num).toDouble(),
+      rating: (json['rating'] as num).toDouble(),
       imageUrl: json['imageUrl'],
-      rating: json['rating'].toDouble(),
       category: json['category'],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+    final Map<String, dynamic> data = {
       'name': name,
       'description': description,
       'price': price,
@@ -39,13 +38,31 @@ class Product {
       'rating': rating,
       'category': category,
     };
+    //salje id samo ako postoji (update slučaj)
+    if (id != null) {
+      data['_id'] = id;
+    }
+
+    return data;
   }
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Product && runtimeType == other.runtimeType && id == other.id;
-
-  @override
-  int get hashCode => id.hashCode;
+  Product copyWith({
+    String? id,
+    String? name,
+    String? description,
+    double? price,
+    String? imageUrl,
+    double? rating,
+    String? category,
+  }) {
+    return Product(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      price: price ?? this.price,
+      imageUrl: imageUrl ?? this.imageUrl,
+      rating: rating ?? this.rating,
+      category: category ?? this.category,
+    );
+  }
 }

@@ -17,6 +17,7 @@ class _RegisterFormState extends State<RegisterForm> {
   final confirmPassCtrl = TextEditingController();
 
   String? errorMessage;
+  bool isLoading = false;
 
   bool _isValidEmail(String email) {
     final emailRegex =
@@ -30,12 +31,23 @@ class _RegisterFormState extends State<RegisterForm> {
     return passwordRegex.hasMatch(password);
   }
 
+  String _extractErrorMessage(Object error) {
+    final raw = error.toString();
+    const prefix = "Exception: ";
+    if (raw.startsWith(prefix)) {
+      return raw.substring(prefix.length).trim();
+    }
+    return raw;
+  }
+
   void _showError(String message) {
     setState(() {
       errorMessage = message;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
@@ -44,7 +56,9 @@ class _RegisterFormState extends State<RegisterForm> {
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.green,
@@ -52,32 +66,100 @@ class _RegisterFormState extends State<RegisterForm> {
     );
   }
 
+ Future<void> _register() async {
+    final name = nameCtrl.text.trim();
+    final email = emailCtrl.text.trim();
+    final password = passCtrl.text;
+    final confirmPassword = confirmPassCtrl.text;
+
+    setState(() => errorMessage = null);
+
+    if (name.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
+      _showError("All fields are required");
+      return;
+    }
+
+    if (!_isValidEmail(email)) {
+      _showError("Invalid email format");
+      return;
+    }
+
+    if (!_isValidPassword(password)) {
+      _showError(
+        "Password must contain at least 6 characters,\n"
+        "one letter and one number",
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showError("Passwords do not match");
+      return;
+    }
+
+    try {
+      // LOADING ON
+      setState(() => isLoading = true);
+
+      //API CALL
+      await AuthService.register(name, email, password);
+
+      _showSuccess("Registration successful!");
+
+      widget.onSuccess();
+
+      if (!mounted) return;
+      Navigator.pop(context);
+
+    } catch (e) {
+      _showError(_extractErrorMessage(e));
+
+    } finally {
+
+      // LOADING OFF
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    nameCtrl.dispose();
+    emailCtrl.dispose();
+    passCtrl.dispose();
+    confirmPassCtrl.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // NAME
+
         TextField(
           controller: nameCtrl,
           decoration: const InputDecoration(labelText: "Name"),
         ),
         const SizedBox(height: 12),
 
-        // EMAIL
         TextField(
           controller: emailCtrl,
           decoration: const InputDecoration(labelText: "Email"),
         ),
         const SizedBox(height: 12),
 
-        // PASSWORD
         TextField(
           controller: passCtrl,
           obscureText: true,
           decoration: const InputDecoration(labelText: "Password"),
         ),
         const SizedBox(height: 6),
+
         Text(
           "Password must have at least 6 characters,\n"
           "including one letter and one number",
@@ -85,7 +167,6 @@ class _RegisterFormState extends State<RegisterForm> {
         ),
         const SizedBox(height: 12),
 
-        // CONFIRM PASSWORD
         TextField(
           controller: confirmPassCtrl,
           obscureText: true,
@@ -93,7 +174,6 @@ class _RegisterFormState extends State<RegisterForm> {
               const InputDecoration(labelText: "Confirm Password"),
         ),
 
-        // ERROR TEXT (ispod polja)
         if (errorMessage != null) ...[
           const SizedBox(height: 12),
           Text(
@@ -104,52 +184,17 @@ class _RegisterFormState extends State<RegisterForm> {
 
         const SizedBox(height: 24),
 
-        // REGISTER BUTTON
+        
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () {
-              final name = nameCtrl.text.trim();
-              final email = emailCtrl.text.trim();
-              final password = passCtrl.text;
-              final confirmPassword = confirmPassCtrl.text;
-
-              setState(() => errorMessage = null);
-
-              if (name.isEmpty ||
-                  email.isEmpty ||
-                  password.isEmpty ||
-                  confirmPassword.isEmpty) {
-                _showError("All fields are required");
-                return;
-              }
-
-              if (!_isValidEmail(email)) {
-                _showError("Invalid email format");
-                return;
-              }
-
-              if (!_isValidPassword(password)) {
-                _showError(
-                  "Password must contain at least 6 characters,\n"
-                  "one letter and one number",
-                );
-                return;
-              }
-
-              if (password != confirmPassword) {
-                _showError("Passwords do not match");
-                return;
-              }
-
-              AuthService.register(name, email, password);
-              _showSuccess("Registration successful!");
-              widget.onSuccess();
-              Navigator.pop(context);
-            },
-            style:
-                ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-            child: const Text("REGISTER"),
+            onPressed: isLoading ? null : _register,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+            ),
+            child: isLoading
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Text("REGISTER"),
           ),
         ),
       ],
